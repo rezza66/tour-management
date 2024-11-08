@@ -69,9 +69,8 @@ function Home() {
       </section>
 
       <section>
-        <div className="py-12 md:px-20">           
+        <div className="md:px-20 py-12 ">           
                 <div className="mb-8 text-center">
-                    {/* <Subtitle subtitle={'Explore'} /> */}
                     <h2 className="text-3xl font-bold text-primary mt-4">Our Featured Tours</h2>
                 </div>
             <FeaturedTourList />
@@ -81,7 +80,6 @@ function Home() {
       <section>
         <div className="py-9 md:px-20">           
                 <div className="mb-8 text-center">
-                    {/* <Subtitle subtitle={'Explore'} /> */}
                     <h2 className="text-3xl font-bold text-primary mt-4">Gallery</h2>
                 </div>
             <MasonryImagesGallery />

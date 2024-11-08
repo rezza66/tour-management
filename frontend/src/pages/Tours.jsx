@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from "react";
-// import CommonSection from "../shared/CommonSection";
+import { useDispatch, useSelector } from "react-redux";
 import TourCard from "../shared/TourCard";
-// import SearchBar from "../shared/SearchBar";
 import Newsletter from "../shared/Newsletter";
-import useFetch from "../hooks/useFetch";
-import { BASE_URL } from "../utils/config";
+import { fetchAllTours } from "../redux/tourSlice";
 
 const Tours = () => {
-  const [pageCount, setPageCount] = useState(0);
+  const dispatch = useDispatch();
   const [page, setPage] = useState(0);
 
-  const {
-    data: tours,
-    loading,
-    error,
-  } = useFetch(`${BASE_URL}/tours?page=${page}`);
-  const { data: tourCount } = useFetch(`${BASE_URL}/tours/search/getTourCount`);
+  const { allTours: tours, pageCount, loading, error } = useSelector((state) => state.tours);
+  
+  useEffect(() => {
+    dispatch(fetchAllTours(page)); 
+  }, [dispatch, page]);
 
   useEffect(() => {
-    const pages = Math.ceil(tourCount / 8);
-    setPageCount(pages);
     window.scrollTo(0, 0);
-  }, [page, tourCount, tours]);
+  }, [tours]);
+
 
   return (
     <>
@@ -35,7 +31,7 @@ const Tours = () => {
           {!loading && !error && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {tours?.map((tour) => (
-                <div className="col-span-1" key={tour._id}>
+                <div className="col-span-1" key={tour._id || tour.id}>
                   <TourCard tour={tour} />
                 </div>
               ))}
@@ -43,7 +39,7 @@ const Tours = () => {
                 {[...Array(pageCount).keys()].map((number) => (
                   <button
                     key={number}
-                    onClick={() => setPage(number)}
+                    onClick={() => setPage(number)} 
                     className={`px-3 py-1 rounded ${
                       page === number
                         ? "bg-blue-500 text-white"

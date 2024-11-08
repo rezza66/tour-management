@@ -1,11 +1,36 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import useFetch from '../../hooks/useFetch';
-import { BASE_URL } from '../../utils/config';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
+import { useSelector, useDispatch } from 'react-redux'; 
+import { fetchFeaturedTours } from '../../redux/tourSlice';
 import calculateAvgRating from '../../utils/avgRating';
+import Swal from 'sweetalert2'; 
+import { BASE_URL } from '../../utils/config';
 
 const FeaturedTourList = () => {
-  const { data: featuredTours, loading, error } = useFetch(`${BASE_URL}/tours/search/getFeaturedTours`);
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); 
+
+  const { featuredTours, loading, error } = useSelector((state) => state.tours);
+  const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(fetchFeaturedTours()); // Memuat featured tours dari Redux
+  }, [dispatch]);
+
+  const handleBookNowClick = (tourId, e) => {
+    e.preventDefault();
+    if (user) {
+      navigate(`/tour/${tourId}`); 
+    } else {
+      Swal.fire({
+        icon: 'info',
+        title: 'Please Login',
+        text: 'You need to login to book a tour. Redirecting to login page...',
+      }).then(() => {
+        navigate('/login');
+      });
+    }
+  };
 
   return (
     <>
@@ -17,7 +42,7 @@ const FeaturedTourList = () => {
           const { totalRating, avgRating } = calculateAvgRating(reviews);
 
           return (
-            <div key={_id} className="card bg-base-100 shadow-xl">
+            <div key={_id} className="card w-full bg-base-100 shadow-lg rounded-lg border border-gray-500 overflow-hidden">
               <figure className="relative">
                 <img src={`${BASE_URL}/${photo}`} alt={title} className="rounded-t-lg" />
                 {featured && (
@@ -43,8 +68,8 @@ const FeaturedTourList = () => {
                 </h5>
                 <div className="flex justify-between items-center mt-3">
                   <h5 className="text-secondary font-bold text-lg">${price} <span className="text-sm font-normal">/ person</span></h5>
-                  <button className="btn btn-primary">
-                    <Link to={`/tour/${_id}`} className="text-white">Book Now</Link>
+                  <button onClick={(e) => handleBookNowClick(_id, e)} className="btn btn-primary">
+                    <span className="text-white">Book Now</span>
                   </button>
                 </div>
               </div>

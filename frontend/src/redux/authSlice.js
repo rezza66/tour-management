@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { BASE_URL } from "../utils/config";
 
 const initialState = {
-  user: localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user"))
-    : null,
+  user: null,
   loading: false,
   error: null,
 };
@@ -12,36 +12,32 @@ export const login = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
+      const response = await axios.post(`${BASE_URL}/auth/login`, credentials, {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(credentials),
       });
 
-      if (!response.ok) {
-        throw new Error("Login failed!");
-      }
+      const token = response.data.data.token; 
+      localStorage.setItem("accessToken", token); 
 
-      const data = await response.json();
-      localStorage.setItem("user", JSON.stringify(data));
-      return data;
+      return { user: response.data.data, token: token }; 
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response.data.message || error.message); 
     }
   }
 );
 
-export const logout = createAsyncThunk("auth/logout", async () => {
-  localStorage.removeItem("user");
+export const logout = createAsyncThunk("auth/logout", async (_, { dispatch }) => {
+  dispatch(clearUser());
+  localStorage.removeItem("accessToken"); 
 });
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    register(state, action) {
+    clearUser(state) {
       state.user = null;
       state.error = null;
       state.loading = false;
@@ -49,20 +45,23 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Login User
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = action.payload.user; // Menyimpan data user di state
+        localStorage.setItem("accessToken", action.payload.token); // Menyimpan token di localStorage
         state.loading = false;
         state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
         state.user = null;
         state.loading = false;
-        state.error = action.payload;
+        state.error = action.payload || action.error.message;
       })
+      // Logout User
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.loading = false;
@@ -71,6 +70,8 @@ const authSlice = createSlice({
   },
 });
 
-export const { register } = authSlice.actions;
+// Ekspor actions
+export const { clearUser } = authSlice.actions;
 
+// Ekspor reducer
 export default authSlice.reducer;

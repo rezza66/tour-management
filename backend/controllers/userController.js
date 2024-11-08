@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Booking from '../models/Booking.js';
 
 // create new User
 export const createUser = async(req, res) => {
@@ -48,6 +49,21 @@ export const getSingleUser = async(req, res) => {
         res.status(500).json({success: false, message: "not found"});
     }
 }
+
+export const getUsersWithBookings = async (req, res) => {
+  try {
+    // Mengambil semua userId unik dari booking
+    const bookings = await Booking.find().distinct('userId');
+    
+    // Mendapatkan informasi user berdasarkan userId yang unik
+    const users = await User.find({ _id: { $in: bookings } });
+
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};
+
 
 // delete User
 export const deleteUser = async(req, res) => {

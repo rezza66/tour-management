@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; 
+import { useDispatch } from 'react-redux';
+import { login } from '../redux/authSlice';
+import Swal from 'sweetalert2'; 
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -9,16 +14,37 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log(formData);
+    try {
+      await dispatch(login(formData)).unwrap(); 
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Login successful',
+        text: 'You have successfully logged in!',
+      });
+
+      setFormData({
+        email: '',
+        password: '',
+      });
+
+      navigate('/');
+    } catch (error) {
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Login failed',
+        text: error.message || 'Invalid credentials. Please try again!',
+      });
+    }
   };
 
   return (
@@ -66,7 +92,7 @@ const Login = () => {
 
           <div className="text-center mt-4">
             <p>Don't have an account? 
-            <Link to="/register" className="link link-primary ml-1">Register here</Link>
+              <Link to="/register" className="link link-primary ml-1">Register here</Link>
             </p>
           </div>
         </form>

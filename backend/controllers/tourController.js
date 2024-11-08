@@ -1,4 +1,5 @@
 import Tour from "../models/Tour.js";
+import Booking from "../models/Booking.js";
 
 // create new tour
 export const createTour = async (req, res) => {
@@ -43,19 +44,50 @@ export const updateTour = async(req, res) => {
 }
 
 // getAll tour
-export const getAllTour = async(req, res) => {
+export const getAllTour = async (req, res) => {
     // for pagination
-    const page = parseInt(req.query.page);
+    const page = parseInt(req.query.page) || 0;  // Default page to 0 if not provided
+    const limit = 8;  // Limit the number of results per page
+    const skip = page * limit;
+  
     try {
-        const tours = await Tour.find({})
+      // Fetch tours with pagination
+      const tours = await Tour.find({})
         .populate('reviews')
-        .skip(page * 8)
-        .limit(8)
-        res.status(200).json({success: true, count: tours.length, message: "Successful", data: tours});
+        .skip(skip)
+        .limit(limit);
+  
+      // Get total number of tours
+      const totalTours = await Tour.estimatedDocumentCount();
+  
+      res.status(200).json({
+        success: true,
+        count: tours.length,   // Number of tours in the current page
+        totalTours,            // Total number of tours in the database
+        message: "Successful",
+        data: tours
+      });
     } catch (err) {
-        res.status(500).json({success: false, message: "not found"})
+      res.status(500).json({ success: false, message: "Not found" });
     }
-}
+  };
+  
+  export const getAllToursWithoutPagination = async (req, res) => {
+    try {
+      // Mengambil semua tours tanpa pagination
+      const tours = await Tour.find({}).populate('reviews');
+      
+      res.status(200).json({
+        success: true,
+        count: tours.length,
+        message: "Successful",
+        data: tours
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: "Not found" });
+    }
+  };
+  
 
 // get single tour
 export const getSingleTour = async(req, res) => {
@@ -121,3 +153,44 @@ export const getTourCount = async(req, res) => {
         res.status(500).json({success: false, message: "failed to fetch"})
     }
 }
+
+// Controller untuk mendapatkan recent tours
+export const getRecentTours = async (req, res) => {
+  try {
+    // Mengambil data tour terbaru, misalnya 5 tour terakhir
+    const recentTours = await Tour.find()  // Ambil semua data Tour
+      .sort({ createdAt: -1 })            // Sortir berdasarkan tanggal terbaru
+      .limit(5);                          // Batasi hanya 5 tour terakhir
+
+    // Loop melalui tour untuk menghitung jumlah customers (misalnya dari model Booking)
+    const recentToursWithDetails = await Promise.all(
+      recentTours.map(async (tour) => {
+        // Hitung jumlah customers yang sudah memesan tour ini
+        const customersCount = await Booking.countDocuments({ tourName: tour.title });
+
+        // Tentukan status tour, misalnya "Completed" atau "Ongoing" tergantung dari booking
+        const status = new Date(tour.date) < new Date() ? 'Completed' : 'Ongoing';
+
+        return {
+          id: tour._id,
+          name: tour.title,
+          date: tour.date,
+          customers: customersCount,
+          status: status,
+        };
+      })
+    );
+
+    // Kirimkan data recentTours dengan informasi yang diinginkan
+    res.status(200).json({
+      success: true,
+      data: recentToursWithDetails,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch recent tours',
+      error: error.message,
+    });
+  }
+};

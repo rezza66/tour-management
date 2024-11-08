@@ -12,18 +12,21 @@ export const register = async (req, res) => {
             username: req.body.username,
             email: req.body.email,
             password: hash,
-            photo: req.body.photo
+            photo: req.file ? req.file.path : null,
+            role: req.body.role || 'user'  
         });
+
         await newUser.save();
 
         res.status(200).json({ success: true, message: 'Successfully created' });
     } catch (err) {
-        if (err.code === 11000) { // Unique field error code
+        if (err.code === 11000) { 
             return res.status(400).json({ success: false, message: 'Username or email already exists' });
         }
         res.status(500).json({ success: false, message: err.message || 'Failed to create. Try again' });
     }
-}
+};
+
 
 // user login
 export const login = async (req, res) => {
@@ -45,11 +48,8 @@ export const login = async (req, res) => {
         const { password, role, ...rest } = user._doc;
 
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET_KEY, { expiresIn: "15d" });
-
-        res.cookie('accessToken', token, {
-            httpOnly: true,
-            maxAge: 15 * 24 * 60 * 60 * 1000 // 15 days in milliseconds
-        }).status(200).json({
+        
+        res.status(200).json({
             success: true,
             message: 'Successfully logged in',
             data: { token, ...rest, role }
