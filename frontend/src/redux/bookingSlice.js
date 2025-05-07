@@ -29,7 +29,7 @@ export const fetchBookingsRevenueTrends = createAsyncThunk(
 // Fetch bookings berdasarkan user
 export const fetchBookingsByUser = createAsyncThunk(
   "bookings/fetchBookingsByUser",
-  async (userId, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     const token = localStorage.getItem("accessToken");
 
     if (!token) {
@@ -37,7 +37,7 @@ export const fetchBookingsByUser = createAsyncThunk(
     }
 
     try {
-      const response = await axios.get(`${BASE_URL}/bookings/user/${userId}`, {
+      const response = await axios.get(`${BASE_URL}/my-bookings`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

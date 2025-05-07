@@ -1,5 +1,5 @@
 import express from 'express'
-import { deleteUser, getAllUser, getSingleUser, getUsersWithBookings, updateUser } from '../controllers/userController.js';
+import { deleteUser, getAllUser, getUserProfile, getUsersWithBookings, updateUser } from '../controllers/userController.js';
 import { verifyAdmin, verifyUser } from '../utils/verifyToken.js';
 
 const router = express.Router()
@@ -7,12 +7,12 @@ const router = express.Router()
 
 
 // update user
-router.put('/users/:id', verifyUser, updateUser)
+router.put('/users/:id', verifyAdmin, updateUser)
 // getAll user
-router.get('/users', verifyUser, getAllUser)
-// get single user
-router.get('/users/:id', verifyUser,getSingleUser)
-router.get('/bookings/users',getUsersWithBookings)
+router.get('/users', verifyAdmin, getAllUser)
+
+router.get('/profile', verifyUser, getUserProfile)
+router.get('/bookings/users', verifyAdmin, getUsersWithBookings)
 
 // delete user
 router.delete('/users/:id', verifyUser,deleteUser)

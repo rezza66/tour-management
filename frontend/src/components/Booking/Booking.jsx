@@ -1,63 +1,85 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux"; 
-import axios from "axios";  
+import { useSelector } from "react-redux";
+import axios from "axios";
 import { BASE_URL } from "../../utils/config";
 
 const Booking = ({ tour, avgRating }) => {
-  const { price, reviews, title } = tour;
+  const { price, reviews, title, _id } = tour;
   const navigate = useNavigate();
-
-  // Mengambil user dari state Redux
   const { user } = useSelector((state) => state.auth);
 
   const [booking, setBooking] = useState({
-    userId: user ? user._id : "", 
-    userEmail: user ? user.email : "", 
+    tourId: _id,
     tourName: title,
-    fullName: "",
+    fullName: user?.username || "",
     phone: "",
     guestSize: 1,
     bookAt: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setBooking((prev) => ({
+        ...prev,
+        fullName: user.username || prev.fullName,
+      }));
+    }
+  }, [user]);
+
   const handleChange = (e) => {
-    setBooking((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+    const { id, value } = e.target;
+    setBooking((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
   };
 
   const serviceFee = 10;
-  const totalAmount =
-    Number(price) * Number(booking.guestSize) + Number(serviceFee);
+  const totalAmount = price * booking.guestSize + serviceFee;
 
   const handleClick = async (e) => {
     e.preventDefault();
-    console.log(booking);
+
+    if (!user) return alert("Please sign in");
+
+    const selectedDate = new Date(booking.bookAt);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      return alert("Tanggal booking tidak boleh lebih awal dari hari ini");
+    }
 
     try {
-      if (!user) {
-        return alert("Please sign in");
-      }
+      setLoading(true);
       const token = localStorage.getItem("accessToken");
 
       const res = await axios.post(
         `${BASE_URL}/booking`,
-        booking,
+        {
+          ...booking,
+          userEmail: user.email, // hanya dikirim ke server, tidak ditampilkan
+        },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      const result = res.data;
-
-      if (res.status !== 200) {
-        return alert(result.message);
+      if (res.data?.success) {
+        navigate("/thank-you");
+      } else {
+        alert(res.data.message || "Terjadi kesalahan saat booking");
       }
-      navigate("/thank-you");
     } catch (err) {
       alert(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,18 +102,20 @@ const Booking = ({ tour, avgRating }) => {
         <form className="space-y-4" onSubmit={handleClick}>
           <input
             type="text"
-            placeholder="Full Name"
             id="fullName"
             required
+            value={booking.fullName}
             onChange={handleChange}
+            placeholder="Nama Lengkap"
             className="input input-bordered w-full"
           />
           <input
             type="number"
-            placeholder="Phone"
             id="phone"
             required
+            value={booking.phone}
             onChange={handleChange}
+            placeholder="Phone"
             className="input input-bordered w-full"
           />
           <div className="flex gap-4">
@@ -99,33 +123,39 @@ const Booking = ({ tour, avgRating }) => {
               type="date"
               id="bookAt"
               required
+              value={booking.bookAt}
               onChange={handleChange}
               className="input input-bordered w-full"
             />
             <input
               type="number"
-              placeholder="Guest"
               id="guestSize"
-              min='1'
+              min="1"
               required
+              value={booking.guestSize}
               onChange={handleChange}
               className="input input-bordered w-full"
             />
           </div>
-          <button type="submit" className="btn btn-primary w-full mt-4">
-            Book Now
+          <button
+            type="submit"
+            className="btn btn-primary w-full mt-4"
+            disabled={loading}
+          >
+            {loading ? "Processing..." : "Book Now"}
           </button>
         </form>
       </div>
 
-      {/* Booking Bottom */}
+      {/* Booking Summary */}
       <div className="mt-8">
         <ul className="list-none space-y-3">
           <li className="flex justify-between">
             <h5 className="text-base font-medium">
-              ${price} <i className="ri-close-line"></i> 1 person
+              ${price} <i className="ri-close-line"></i> {booking.guestSize}{" "}
+              {booking.guestSize > 1 ? "people" : "person"}
             </h5>
-            <span>${price}</span>
+            <span>${price * booking.guestSize}</span>
           </li>
           <li className="flex justify-between">
             <h5 className="text-base font-medium">Service charge</h5>

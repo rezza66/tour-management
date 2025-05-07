@@ -187,7 +187,7 @@ const Dashboard = () => {
                   <option value="Confirmed">Confirmed</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
-                <table className="min-w-full bg-white border border-gray-300">
+                <table className="min-w-full text-gray-900 bg-white border border-gray-300">
                   <thead>
                     <tr>
                       <th className="px-4 py-2 border">Name</th>

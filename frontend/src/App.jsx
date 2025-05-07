@@ -10,6 +10,8 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import UserList from "./pages/UserList";
 import EditUser from "./pages/EditUser";
+import Profile from "./pages/Profile";
+import MyBookings from "./pages/MyBookings";
 import Dashboard from "./pages/Dashboard";
 import RoleBasedRoute from "./components/RoleBaseRoute/RoleBaseRoute";
 import AccessDenied from "./components/AccessDenied/AccessDenied";
@@ -18,8 +20,9 @@ import AddTour from "./pages/AddTours";
 
 function App() {
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header />
+      <div className="flex-grow">
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/about' element={<AboutPage />} />
@@ -30,6 +33,16 @@ function App() {
         <Route path='/userlist' element={
           <RoleBasedRoute allowedRoles={['admin']}>
             <UserList />
+          </RoleBasedRoute>
+        } />
+        <Route path='/user-profile' element={
+          <RoleBasedRoute allowedRoles={['user']}>
+            <Profile />
+          </RoleBasedRoute>
+        } />
+        <Route path='/my-book' element={
+          <RoleBasedRoute allowedRoles={['user']}>
+            <MyBookings />
           </RoleBasedRoute>
         } />
         <Route path='/edituser' element={
@@ -56,8 +69,9 @@ function App() {
         <Route path="/access-denied" element={<AccessDenied />} />
         <Route path="/thank-you" element={<ThankYouPage />} />
       </Routes>
+      </div>
       <Footer />
-    </>
+    </div>
   )
 }
 

@@ -51,7 +51,7 @@ const AddTour = () => {
       const response = await fetch(`${BASE_URL}/tours`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`, // Jangan tambahkan "Content-Type" karena akan ditetapkan otomatis untuk FormData
+          "Authorization": `Bearer ${token}`, 
         },
         body: formData,
       });

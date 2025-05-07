@@ -18,20 +18,22 @@ export const login = createAsyncThunk(
         },
       });
 
-      const token = response.data.data.token; 
-      localStorage.setItem("accessToken", token); 
+      const { token, ...userData } = response.data.data;
+      localStorage.setItem("accessToken", token);
 
-      return { user: response.data.data, token: token }; 
+      return { user: userData }; 
     } catch (error) {
-      return rejectWithValue(error.response.data.message || error.message); 
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
 
-export const logout = createAsyncThunk("auth/logout", async (_, { dispatch }) => {
-  dispatch(clearUser());
-  localStorage.removeItem("accessToken"); 
-});
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async () => {
+    localStorage.removeItem("accessToken");
+  }
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -45,14 +47,12 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Login User
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload.user; // Menyimpan data user di state
-        localStorage.setItem("accessToken", action.payload.token); // Menyimpan token di localStorage
+        state.user = action.payload.user;
         state.loading = false;
         state.error = null;
       })
@@ -61,7 +61,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload || action.error.message;
       })
-      // Logout User
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.loading = false;
@@ -70,8 +69,5 @@ const authSlice = createSlice({
   },
 });
 
-// Ekspor actions
 export const { clearUser } = authSlice.actions;
-
-// Ekspor reducer
 export default authSlice.reducer;

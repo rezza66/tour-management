@@ -4,9 +4,6 @@ import Booking from "../models/Booking.js";
 // create new tour
 export const createTour = async (req, res) => {
     try {
-        // Log data yang diterima
-        console.log(req.body);
-
         const newTour = new Tour({
             ...req.body,
             photo: req.file.path

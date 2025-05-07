@@ -3,55 +3,85 @@ import Tour from '../models/Tour.js';
 
 export const createBooking = async (req, res) => {
   try {
-    const { userId, userEmail, tourName, fullName, guestSize, phone } = req.body;
+    const { id: userId, email: userEmail } = req.user;
+    const { tourId, fullName, guestSize, phone, bookAt } = req.body;
 
-    // Ambil harga dari tour yang di-booking
-    const tour = await Tour.findOne({ title: tourName });
+    // Validasi data yang diperlukan
+    if (!tourId || !fullName || !guestSize || !phone || !bookAt) {
+      return res.status(400).json({ message: 'Semua field harus diisi' });
+    }
+
+    // Validasi jumlah tamu
+    if (guestSize < 1) {
+      return res.status(400).json({ message: 'Jumlah tamu minimal 1' });
+    }
+
+    // Validasi format nomor telepon
+    if (!/^\d+$/.test(phone)) {
+      return res.status(400).json({ message: 'Nomor telepon harus berupa angka' });
+    }
+
+    // Validasi tanggal booking
+    const selectedDate = new Date(bookAt);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+      return res.status(400).json({ message: 'Tanggal booking tidak valid' });
+    }
+
+    // Cari tour berdasarkan ID
+    const tour = await Tour.findById(tourId);
     if (!tour) {
-      return res.status(404).json({ message: 'Tour not found' });
+      return res.status(404).json({ message: 'Tour tidak ditemukan' });
     }
 
     const newBooking = new Booking({
       userId,
       userEmail,
-      tourName,
+      tourId,
+      tourName: tour.title,
       fullName,
       guestSize,
       phone,
-      bookAt: new Date(),
-      price: tour.price, // Menyimpan harga tour
-      paymentStatus: 'Paid', // Atur status pembayaran
+      bookAt: selectedDate,
+      price: tour.price,
+      status: 'Completed'
     });
 
     await newBooking.save();
-    res.status(201).json({ message: 'Booking created successfully', data: newBooking });
+    res.status(201).json({ 
+      success: true,
+      message: 'Booking berhasil dibuat', 
+      data: newBooking 
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.error(error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Terjadi kesalahan server', 
+      error: error.message 
+    });
   }
 };
 
 export const getBookingsByUser = async (req, res) => {
-  const { id } = req.params;
-
-  // Validasi id
-  if (!id) {
-    return res.status(400).json({ message: 'User ID is required' });
-  }
+  const userId = req.user.id; 
 
   try {
-    const bookings = await Booking.find({ id }).populate('userId');
+    const bookings = await Booking.find({ userId }).populate('userId', '-password');
 
-    // Jika tidak ada bookings ditemukan
     if (!bookings || bookings.length === 0) {
       return res.status(404).json({ message: 'No bookings found for this user' });
     }
 
     res.status(200).json(bookings);
   } catch (error) {
-    console.error(error); // Mencetak error ke konsol untuk debugging
+    console.error(error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 
 // get single booking
