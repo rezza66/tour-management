@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUserProfile } from '../redux/userSlice';
-import { BASE_URL } from '../utils/config';
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -40,7 +39,7 @@ const Profile = () => {
               <div className="relative">
                 <img
                   className="h-24 w-24 rounded-full object-cover border-4 border-white"
-                  src={profile?.photo ? `${BASE_URL}/${profile.photo}` : '/default-avatar.jpg'}
+                  src={profile?.photo ? profile.photo : '/default-avatar.jpg'}
                   alt="Profile"
                 />
               </div>

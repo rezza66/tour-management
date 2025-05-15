@@ -1,6 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import path from 'path';
 import cors from 'cors';
 import { connectDB } from './config/database.js';
 import tourRoute from './routes/tours.js';
@@ -23,15 +22,11 @@ app.use(express.json());
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
 app.use(authRouter)
 app.use(tourRoute)
 app.use(userRoute)
 app.use(reviewRoute)
 app.use(bookingRoute)
-
-
 
 app.listen(port, ()=> {
     connectDB()

@@ -1,8 +1,6 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
 import { useSelector } from 'react-redux'; 
 import calculateAvgRating from '../utils/avgRating';
-import { BASE_URL } from '../utils/config';
 import Swal from 'sweetalert2'; 
 
 const TourCard = ({ tour }) => {
@@ -30,7 +28,7 @@ const TourCard = ({ tour }) => {
     return (
         <div className="card w-full bg-base-100 shadow-lg rounded-lg border border-gray-500 overflow-hidden">
             <div className="relative">
-                <img src={`${BASE_URL}/${photo}`} alt={title} className="w-full h-48 object-cover rounded-t-lg" />
+                <img src={photo} alt={title} className="w-full h-48 object-cover rounded-t-lg" />
                 {featured && (
                     <span className="absolute bottom-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-t-lg">
                         Featured

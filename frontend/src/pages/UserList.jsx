@@ -66,7 +66,7 @@ const UserList = () => {
                                 className="w-full h-full rounded-full"
                                 src={
                                   user.photo
-                                    ? `${BASE_URL}/${user.photo}`
+                                    ? user.photo
                                     : avatar
                                 }
                                 alt="User Avatar"

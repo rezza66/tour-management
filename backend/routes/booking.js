@@ -1,6 +1,6 @@
 import express from 'express';
 import { createBooking, getAllBooking, getBooking, getBookingAndRevenueTrends, getBookingsByUser } from '../controllers/bookingController.js';
-import { verifyAdmin, verifyUser } from '../utils/verifyToken.js';
+import { verifyAdmin, verifyUser } from '../middleware/verifyToken.js';
 
 const router = express.Router();
 

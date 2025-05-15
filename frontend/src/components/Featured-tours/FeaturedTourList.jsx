@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux'; 
 import { fetchFeaturedTours } from '../../redux/tourSlice';
 import calculateAvgRating from '../../utils/avgRating';
-import Swal from 'sweetalert2'; 
-import { BASE_URL } from '../../utils/config';
+import Swal from 'sweetalert2';
 
 const FeaturedTourList = () => {
   const dispatch = useDispatch();
@@ -44,7 +43,7 @@ const FeaturedTourList = () => {
           return (
             <div key={_id} className="card w-full bg-base-100 shadow-lg rounded-lg border border-gray-500 overflow-hidden">
               <figure className="relative">
-                <img src={`${BASE_URL}/${photo}`} alt={title} className="rounded-t-lg" />
+                <img src={photo} alt={title} className="rounded-t-lg" />
                 {featured && (
                   <span className="absolute bottom-0 right-0 bg-primary text-white px-2 py-1 rounded-tl-lg">
                     Featured

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { clearUser } from "../../redux/authSlice";
@@ -72,7 +72,7 @@ const Header = () => {
             <>
               <div className="flex items-center space-x-2">
                 <img
-                  src={user.photo ? `${BASE_URL}/${user.photo}` : avatar}
+                  src={user.photo || avatar}
                   alt="User Avatar"
                   className="w-10 h-10 rounded-full object-cover cursor-pointer"
                 />

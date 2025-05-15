@@ -108,7 +108,7 @@ const TourDetails = () => {
         <div className="grid md:px-20 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="rounded-xl overflow-hidden shadow-lg">
-              <img className="w-full" src={`${BASE_URL}/${photo}`} alt={title} />
+              <img className="w-full" src={photo} alt={title} />
               <div className="p-6">
                 <h2 className="text-3xl font-bold mb-4">{title}</h2>
                 <div className="flex items-center gap-4 mb-4">

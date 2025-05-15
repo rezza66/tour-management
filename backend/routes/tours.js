@@ -1,7 +1,7 @@
 import express from 'express';
 import { createTour, deleteTour, getAllTour, getSingleTour, getTourBySearch, getTourCount, getFeaturedTour, updateTour, getAllToursWithoutPagination, getRecentTours } from '../controllers/tourController.js';
-import { upload } from '../config/multer.js';
-import { verifyUser, verifyAdmin } from '../utils/verifyToken.js';
+import { upload } from '../middleware/uploads.js';
+import { verifyUser, verifyAdmin } from '../middleware/verifyToken.js';
 
 const router = express.Router()
 
