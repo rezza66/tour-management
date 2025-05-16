@@ -12,15 +12,20 @@ dotenv.config()
 const app = express()
 const port = process.env.PORT || 8000
 
-const corsOptions = {
-    origin: 'http://localhost:5173',
-    credentials: true
-}
+app.use(cors({
+  origin: process.env.PORT_FE,
+  credentials: true
+}));
+
 
 // middleware
 app.use(express.json());
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
+
+app.get("/api/hello", (req, res) => {
+  res.json({ message: "Hello from backend!" });
+});
 
 app.use(authRouter)
 app.use(tourRoute)
