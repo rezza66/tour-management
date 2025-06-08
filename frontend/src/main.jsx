@@ -9,7 +9,7 @@ import './index.css';
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}> {/* Menambahkan PersistGate */}
-      <BrowserRouter>
+      <BrowserRouter basename="/tour-frontend">
         <App />
       </BrowserRouter>
     </PersistGate>
