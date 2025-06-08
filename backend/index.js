@@ -30,11 +30,11 @@ app.get("/app2/api/hello", (req, res) => {
 
 const app2Router = express.Router();
 
-app2Router.use("/api/auth", authRouter);
-app2Router.use("/api/tours", tourRoute);
-app2Router.use("/api/users", userRoute);
-app2Router.use("/api/reviews", reviewRoute);
-app2Router.use("/api/bookings", bookingRoute);
+app2Router.use("/api", authRouter);
+app2Router.use("/api", tourRoute);
+app2Router.use("/api", userRoute);
+app2Router.use("/api", reviewRoute);
+app2Router.use("/api", bookingRoute);
 
 app.use("/app2", app2Router);
 
