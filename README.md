@@ -45,10 +45,10 @@ npm run dev
 cd ../frontend
 npm install
 npm run dev
-⚙️ Konfigurasi .env
 
 📦 *Note*: Backend menggunakan `nodemon` untuk development. Pastikan sudah ter-install secara global atau lokal.
 
+⚙️ Konfigurasi .env
 Buat file .env di folder backend seperti berikut:
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
